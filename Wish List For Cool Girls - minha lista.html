@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Wish List ✨</title>
+
+<body>
+    <div class="container">
+        <h1>✨ Minha Wish List ✨</h1>
+        
+        <div class="input-group">
+            <input type="text" id="itemName" placeholder="O que você deseja?">
+            <input type="number" id="itemPrice" placeholder="Preço (R$)" min="0" step="0.01">
+            <select id="itemPriority">
+                <option value="low">Baixa prioridade</option>
+                <option value="medium" selected>Média prioridade</option>
+                <option value="high">Alta prioridade</option>
+            </select>
+            <button onclick="addItem()">Adicionar</button>
+            <button onclick="clearAll()" style="background-color: #ff2c97;">Limpar Tudo</button>
+        </div>
+        
+        <div class="wish-list" id="wishListContainer">
+       
+        </div>
+        
+        <div class="total" id="totalPrice">Total: R$ 0,00</div>
+    </div>
+
+    <script>
+        
+        function saveWishList() {
+            localStorage.setItem('wishList', JSON.stringify(wishList));
+        }
+
+      
+        function loadWishList() {
+            const saved = localStorage.getItem('wishList');
+            return saved ? JSON.parse(saved) : [
+                { name: "Bolsa de couro", price: 199.90, priority: "high" },
+                { name: "Kit de maquiagem", price: 149.50, priority: "medium" },
+                { name: "Diário decorado", price: 39.90, priority: "low" }
+            ];
+        }
+
+        let wishList = loadWishList();
+
+       
+        function renderWishList() {
+            const container = document.getElementById('wishListContainer');
+            const totalElement = document.getElementById('totalPrice');
+            let total = 0;
+
+            container.innerHTML = '';
+
+           
+            wishList.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = `wish-item priority-${item.priority}`;
+                
+                itemElement.innerHTML = `
+                    <div class="info">
+                        <div class="name">${item.name}</div>
+                        <div class="details">
+                            <span class="price">R$ ${item.price.toFixed(2)}</span>
+                            <span>Prioridade: ${getPriorityText(item.priority)}</span>
+                        </div>
+                    </div>
+                    <button class="remove-btn" onclick="removeItem(${index})">Remover</button>
+                `;
+                
+                container.appendChild(itemElement);
+                total += item.price;
+            });
+
+            totalElement.textContent = `Total: R$ ${total.toFixed(2)}`;
+
+            if (wishList.length === 0) {
+                container.innerHTML = '<div class="empty-message">Sua wish list está vazia. Adicione itens!</div>';
+            }
+        }
+
+        function getPriorityText(priority) {
+            const priorities = {
+                'high': 'Alta',
+                'medium': 'Média',
+                'low': 'Baixa'
+            };
+            return priorities[priority];
+        }
+
+        function addItem() {
+            const nameInput = document.getElementById('itemName');
+            const priceInput = document.getElementById('itemPrice');
+            const prioritySelect = document.getElementById('itemPriority');
+            
+            const name = nameInput.value.trim();
+            const price = parseFloat(priceInput.value);
+            const priority = prioritySelect.value;
+
+            if (name && !isNaN(price)) {
+                wishList.push({
+                    name,
+                    price,
+                    priority
+                });
+
+                saveWishList(); 
+                
+                nameInput.value = '';
+                priceInput.value = '';
+                prioritySelect.value = 'medium';
+
+                renderWishList();
+            } else {
+                alert('Por favor, preencha todos os campos corretamente!');
+            }
+        }
+
+        function removeItem(index) {
+            wishList.splice(index, 1);
+            saveWishList();
+            renderWishList();
+        }
+
+        function clearAll() {
+            if (confirm('Deseja limpar toda a lista?')) {
+                wishList = [];
+                saveWishList(); 
+                renderWishList();
+            }
+        }
+
+        
+        window.onload = renderWishList;
+    </script>
+</body>
+</html>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #fff5f7;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #ff6b9d;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input, select {
+            padding: 12px;
+            border: 2px solid #ffc0d5;
+            border-radius: 8px;
+            flex-grow: 1;
+            font-size: 16px;
+        }
+
+        select {
+            max-width: 150px;
+        }
+
+        button {
+            background-color: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff4785;
+            transform: translateY(-2px);
+        }
+
+        .wish-list {
+            margin-top: 30px;
+        }
+
+        .wish-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #fff0f5;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .wish-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(255, 107, 157, 0.2);
+        }
+
+        .wish-item .info {
+            flex-grow: 1;
+        }
+
+        .wish-item .name {
+            font-weight: bold;
+            color: #ff4785;
+            font-size: 1.1em;
+        }
+
+        .wish-item .details {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+            color: #666;
+        }
+
+        .wish-item .price {
+            font-weight: bold;
+            color: #ff6b9d;
+        }
+
+        .remove-btn {
+            background-color: #ff2c97;
+            padding: 8px 12px;
+            font-size: 14px;
+            margin-left: 15px;
+        }
+
+        .remove-btn:hover {
+            background-color: #ff2c97;
+        }
+
+        .total {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ff6b9d;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #888;
+            margin-top: 30px;
+            font-style: italic;
+        }
+
+        .priority-high {
+            border-left: 5px solid #ef1010;
+        }
+
+        .priority-medium {
+            border-left: 5px solid #fccf7b;
+        }
+
+        .priority-low {
+            border-left: 5px solid #66f2a1;
+        }
+    </style>
+    </head>
